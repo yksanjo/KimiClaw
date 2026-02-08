@@ -31,6 +31,18 @@ export function buildEnvVars(env: MoltbotEnv): Record<string, string> {
     envVars.OPENAI_API_KEY = env.OPENAI_API_KEY;
   }
 
+  // DeepSeek/Kimi/Moonshot (OpenAI-compatible providers)
+  if (env.DEEPSEEK_API_KEY) envVars.DEEPSEEK_API_KEY = env.DEEPSEEK_API_KEY;
+  if (env.DEEPSEEK_BASE_URL) envVars.DEEPSEEK_BASE_URL = env.DEEPSEEK_BASE_URL;
+
+  // Kimi API (Moonshot AI) - Primary provider for OpenClaw
+  // Kimi uses OpenAI-compatible API format
+  if (env.KIMI_API_KEY) {
+    envVars.OPENAI_API_KEY = env.KIMI_API_KEY;
+    // Set default Kimi base URL if not provided
+    envVars.OPENAI_BASE_URL = env.KIMI_BASE_URL || 'https://api.moonshot.cn/v1';
+  }
+
   // Pass base URL (used by start-moltbot.sh to determine provider)
   if (normalizedBaseUrl) {
     envVars.AI_GATEWAY_BASE_URL = normalizedBaseUrl;
@@ -42,6 +54,11 @@ export function buildEnvVars(env: MoltbotEnv): Record<string, string> {
     }
   } else if (env.ANTHROPIC_BASE_URL) {
     envVars.ANTHROPIC_BASE_URL = env.ANTHROPIC_BASE_URL;
+  }
+  
+  // Pass OPENAI_BASE_URL directly (for Kimi/Moonshot and other OpenAI-compatible providers)
+  if (env.OPENAI_BASE_URL) {
+    envVars.OPENAI_BASE_URL = env.OPENAI_BASE_URL;
   }
   // Map MOLTBOT_GATEWAY_TOKEN to CLAWDBOT_GATEWAY_TOKEN (container expects this name)
   if (env.MOLTBOT_GATEWAY_TOKEN) envVars.CLAWDBOT_GATEWAY_TOKEN = env.MOLTBOT_GATEWAY_TOKEN;

@@ -1,8 +1,12 @@
-# OpenClaw on Cloudflare Workers
+# OpenClaw - Kimi API Edition
 
-Run [OpenClaw](https://github.com/openclaw/openclaw) (formerly Moltbot, formerly Clawdbot) personal AI assistant in a [Cloudflare Sandbox](https://developers.cloudflare.com/sandbox/).
+Run [OpenClaw](https://github.com/yksanjo/openclaw) AI assistant with [Kimi API](https://platform.moonshot.cn/) (Moonshot AI) in a [Cloudflare Sandbox](https://developers.cloudflare.com/sandbox/).
 
-![moltworker architecture](./assets/logo.png)
+> **Kimi-First:** This edition is optimized for Kimi API (Moonshot AI) as the primary LLM provider.
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/yksanjo/moltworker2)
+
+![openclaw architecture](./assets/logo.png)
 
 > **Experimental:** This is a proof of concept demonstrating that OpenClaw can run in Cloudflare Sandbox. It is not officially supported and may break without notice. Use at your own risk.
 
@@ -11,7 +15,7 @@ Run [OpenClaw](https://github.com/openclaw/openclaw) (formerly Moltbot, formerly
 ## Requirements
 
 - [Workers Paid plan](https://www.cloudflare.com/plans/developer-platform/) ($5 USD/month) — required for Cloudflare Sandbox containers
-- [Anthropic API key](https://console.anthropic.com/) — for Claude access, or you can use AI Gateway's [Unified Billing](https://developers.cloudflare.com/ai-gateway/features/unified-billing/)
+- [Kimi API key](https://platform.moonshot.cn/) — for Moonshot AI access (primary provider)
 
 The following Cloudflare features used by this project have free tiers:
 - Cloudflare Access (authentication)
@@ -21,8 +25,9 @@ The following Cloudflare features used by this project have free tiers:
 
 ## What is OpenClaw?
 
-[OpenClaw](https://github.com/openclaw/openclaw) (formerly Moltbot, formerly Clawdbot) is a personal AI assistant with a gateway architecture that connects to multiple chat platforms. Key features:
+OpenClaw is a personal AI assistant with a gateway architecture that connects to multiple chat platforms, powered by Kimi (Moonshot AI). Key features:
 
+- **Kimi API Integration** - Native support for Moonshot AI's powerful models
 - **Control UI** - Web-based chat interface at the gateway
 - **Multi-channel support** - Telegram, Discord, Slack
 - **Device pairing** - Secure DM authentication requiring explicit approval
@@ -43,8 +48,11 @@ _Cloudflare Sandboxes are available on the [Workers Paid plan](https://dash.clou
 # Install dependencies
 npm install
 
-# Set your API key (direct Anthropic access)
-npx wrangler secret put ANTHROPIC_API_KEY
+# Set your Kimi API key (primary provider)
+npx wrangler secret put KIMI_API_KEY
+
+# Optional: Set custom Kimi base URL (defaults to https://api.moonshot.cn/v1)
+# npx wrangler secret put KIMI_BASE_URL
 
 # Or use AI Gateway instead (see "Optional: Cloudflare AI Gateway" below)
 # npx wrangler secret put AI_GATEWAY_API_KEY
@@ -359,11 +367,14 @@ The `AI_GATEWAY_*` variables take precedence over `ANTHROPIC_*` if both are set.
 
 | Secret | Required | Description |
 |--------|----------|-------------|
+| `KIMI_API_KEY` | Yes* | **Primary** - Kimi/Moonshot AI API key from [platform.moonshot.cn](https://platform.moonshot.cn) |
+| `KIMI_BASE_URL` | No | Kimi API base URL (default: `https://api.moonshot.cn/v1`) |
 | `AI_GATEWAY_API_KEY` | Yes* | API key for your AI Gateway provider (requires `AI_GATEWAY_BASE_URL`) |
 | `AI_GATEWAY_BASE_URL` | Yes* | AI Gateway endpoint URL (required when using `AI_GATEWAY_API_KEY`) |
-| `ANTHROPIC_API_KEY` | Yes* | Direct Anthropic API key (fallback if AI Gateway not configured) |
+| `ANTHROPIC_API_KEY` | Yes* | Direct Anthropic API key (fallback if Kimi not configured) |
 | `ANTHROPIC_BASE_URL` | No | Direct Anthropic API base URL (fallback) |
 | `OPENAI_API_KEY` | No | OpenAI API key (alternative provider) |
+| `DEEPSEEK_API_KEY` | No | DeepSeek API key (alternative provider) |
 | `CF_ACCESS_TEAM_DOMAIN` | Yes* | Cloudflare Access team domain (required for admin UI) |
 | `CF_ACCESS_AUD` | Yes* | Cloudflare Access application audience (required for admin UI) |
 | `MOLTBOT_GATEWAY_TOKEN` | Yes | Gateway token for authentication (pass via `?token=` query param) |
@@ -381,6 +392,8 @@ The `AI_GATEWAY_*` variables take precedence over `ANTHROPIC_*` if both are set.
 | `SLACK_APP_TOKEN` | No | Slack app token |
 | `CDP_SECRET` | No | Shared secret for CDP endpoint authentication (see [Browser Automation](#optional-browser-automation-cdp)) |
 | `WORKER_URL` | No | Public URL of the worker (required for CDP) |
+
+\* One of `KIMI_API_KEY`, `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, or `AI_GATEWAY_API_KEY` is required.
 
 ## Security Considerations
 
@@ -414,7 +427,8 @@ OpenClaw in Cloudflare Sandbox uses multiple authentication layers:
 
 ## Links
 
-- [OpenClaw](https://github.com/openclaw/openclaw)
-- [OpenClaw Docs](https://docs.openclaw.ai/)
+- [OpenClaw](https://github.com/yksanjo/openclaw)
+- [Kimi/Moonshot AI](https://platform.moonshot.cn/)
+- [Kimi API Documentation](https://platform.moonshot.cn/docs)
 - [Cloudflare Sandbox Docs](https://developers.cloudflare.com/sandbox/)
 - [Cloudflare Access Docs](https://developers.cloudflare.com/cloudflare-one/policies/access/)

@@ -27,7 +27,8 @@ import type { AppEnv, MoltbotEnv } from './types';
 import { MOLTBOT_PORT } from './config';
 import { createAccessMiddleware } from './auth';
 import { ensureMoltbotGateway, findExistingMoltbotProcess, syncToR2 } from './gateway';
-import { publicRoutes, api, adminUi, debug, cdp } from './routes';
+import { publicRoutes, api, adminUi, debug, cdp, whatsapp, telegram } from './routes';
+import { privacy } from './privacy';
 import loadingPageHtml from './assets/loading.html';
 import configErrorHtml from './assets/config-error.html';
 
@@ -59,13 +60,8 @@ function validateRequiredEnv(env: MoltbotEnv): string[] {
     missing.push('MOLTBOT_GATEWAY_TOKEN');
   }
 
-  if (!env.CF_ACCESS_TEAM_DOMAIN) {
-    missing.push('CF_ACCESS_TEAM_DOMAIN');
-  }
-
-  if (!env.CF_ACCESS_AUD) {
-    missing.push('CF_ACCESS_AUD');
-  }
+  // CF_ACCESS is optional - if not set, admin UI will be unprotected
+  // (gateway token still required for main access)
 
   // Check for AI Gateway or direct Anthropic configuration
   if (env.AI_GATEWAY_API_KEY) {
@@ -73,9 +69,9 @@ function validateRequiredEnv(env: MoltbotEnv): string[] {
     if (!env.AI_GATEWAY_BASE_URL) {
       missing.push('AI_GATEWAY_BASE_URL (required when using AI_GATEWAY_API_KEY)');
     }
-  } else if (!env.ANTHROPIC_API_KEY) {
-    // Direct Anthropic access requires API key
-    missing.push('ANTHROPIC_API_KEY or AI_GATEWAY_API_KEY');
+  } else if (!env.ANTHROPIC_API_KEY && !env.DEEPSEEK_API_KEY && !env.KIMI_API_KEY) {
+    // Direct provider access requires API key
+    missing.push('KIMI_API_KEY, ANTHROPIC_API_KEY, DEEPSEEK_API_KEY, or AI_GATEWAY_API_KEY');
   }
 
   return missing;
@@ -115,7 +111,7 @@ const app = new Hono<AppEnv>();
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url);
   console.log(`[REQ] ${c.req.method} ${url.pathname}${url.search}`);
-  console.log(`[REQ] Has ANTHROPIC_API_KEY: ${!!c.env.ANTHROPIC_API_KEY}`);
+  console.log(`[REQ] Has KIMI_API_KEY: ${!!c.env.KIMI_API_KEY}, ANTHROPIC_API_KEY: ${!!c.env.ANTHROPIC_API_KEY}, DEEPSEEK_API_KEY: ${!!c.env.DEEPSEEK_API_KEY}`);
   console.log(`[REQ] DEV_MODE: ${c.env.DEV_MODE}`);
   console.log(`[REQ] DEBUG_ROUTES: ${c.env.DEBUG_ROUTES}`);
   await next();
@@ -196,6 +192,16 @@ app.use('*', async (c, next) => {
 // Mount API routes (protected by Cloudflare Access)
 app.route('/api', api);
 
+// Mount Agent Privacy Layer routes (protected by Cloudflare Access)
+// E2E encrypted channels for agent-to-agent communication
+app.route('/api/privacy', privacy);
+
+// Mount WhatsApp webhook routes (public, for Meta webhooks)
+app.route('/api/whatsapp', whatsapp);
+
+// Mount Telegram webhook routes (public, for Telegram Bot API)
+app.route('/api/telegram', telegram);
+
 // Mount Admin UI routes (protected by Cloudflare Access)
 app.route('/_admin', adminUi);
 
@@ -249,8 +255,8 @@ app.all('*', async (c) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     let hint = 'Check worker logs with: wrangler tail';
-    if (!c.env.ANTHROPIC_API_KEY) {
-      hint = 'ANTHROPIC_API_KEY is not set. Run: wrangler secret put ANTHROPIC_API_KEY';
+    if (!c.env.ANTHROPIC_API_KEY && !c.env.DEEPSEEK_API_KEY && !c.env.KIMI_API_KEY) {
+      hint = 'No LLM API key set. Run: wrangler secret put KIMI_API_KEY';
     } else if (errorMessage.includes('heap out of memory') || errorMessage.includes('OOM')) {
       hint = 'Gateway ran out of memory. Try again or check for memory leaks.';
     }

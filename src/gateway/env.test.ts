@@ -85,6 +85,23 @@ describe('buildEnvVars', () => {
     expect(result.OPENAI_API_KEY).toBe('sk-openai-key');
   });
 
+  it('maps KIMI_API_KEY to OPENAI_API_KEY with default base URL', () => {
+    const env = createMockEnv({ KIMI_API_KEY: 'sk-kimi-key' });
+    const result = buildEnvVars(env);
+    expect(result.OPENAI_API_KEY).toBe('sk-kimi-key');
+    expect(result.OPENAI_BASE_URL).toBe('https://api.moonshot.cn/v1');
+  });
+
+  it('maps KIMI_API_KEY with custom KIMI_BASE_URL', () => {
+    const env = createMockEnv({
+      KIMI_API_KEY: 'sk-kimi-key',
+      KIMI_BASE_URL: 'https://custom.moonshot.cn/v1',
+    });
+    const result = buildEnvVars(env);
+    expect(result.OPENAI_API_KEY).toBe('sk-kimi-key');
+    expect(result.OPENAI_BASE_URL).toBe('https://custom.moonshot.cn/v1');
+  });
+
   it('maps MOLTBOT_GATEWAY_TOKEN to CLAWDBOT_GATEWAY_TOKEN for container', () => {
     const env = createMockEnv({ MOLTBOT_GATEWAY_TOKEN: 'my-token' });
     const result = buildEnvVars(env);

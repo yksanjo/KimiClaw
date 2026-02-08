@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "description": "Run Moltbot personal AI assistant in a Cloudflare Sandbox",
+  "description": "OpenClaw - Kimi API powered AI assistant running in Cloudflare Sandbox",
   "scripts": {
     "build": "vite build",
     "deploy": "npm run build && wrangler deploy",
@@ -40,11 +40,29 @@
   "license": "MIT",
   "cloudflare": {
     "bindings": {
-      "ANTHROPIC_API_KEY": {
-        "description": "Your [Anthropic API key](https://console.anthropic.com/)."
+      "DEEPSEEK_API_KEY": {
+        "description": "Your DeepSeek API key from https://platform.deepseek.com"
+      },
+      "KIMI_API_KEY": {
+        "description": "Your Kimi API key from https://platform.moonshot.cn (OpenClaw default provider)"
+      },
+      "KIMI_BASE_URL": {
+        "description": "Kimi API base URL (default: https://api.moonshot.cn/v1)"
       },
       "MOLTBOT_GATEWAY_TOKEN": {
-        "description": "Token for gateway access. Generate with: openssl rand -hex 32"
+        "description": "Token to protect gateway access. Random string, you can generate one with `openssl rand -base64 32`, for example."
+      },
+      "WHATSAPP_BUSINESS_TOKEN": {
+        "description": "WhatsApp Business API token from Meta Developer Portal"
+      },
+      "WHATSAPP_PHONE_NUMBER_ID": {
+        "description": "WhatsApp Business phone number ID"
+      },
+      "WHATSAPP_BUSINESS_ACCOUNT_ID": {
+        "description": "WhatsApp Business account ID"
+      },
+      "WHATSAPP_WEBHOOK_TOKEN": {
+        "description": "Webhook verification token for WhatsApp"
       }
     }
   }
