@@ -1,8 +1,9 @@
 /**
- * Moltbot + Cloudflare Sandbox
+ * KimiDock - Kimi (Moonshot AI) on Cloudflare Sandbox
  *
- * This Worker runs Moltbot personal AI assistant in a Cloudflare Sandbox container.
- * It proxies all requests to the Moltbot Gateway's web UI and WebSocket endpoint.
+ * This Worker runs a personal AI assistant powered by Kimi (Moonshot AI) in a 
+ * Cloudflare Sandbox container. It proxies all requests to the Gateway's web UI 
+ * and WebSocket endpoint.
  *
  * Features:
  * - Web UI (Control Dashboard + WebChat) at /

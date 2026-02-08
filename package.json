@@ -1,9 +1,9 @@
 {
-  "name": "moltbot-sandbox",
+  "name": "kimidock",
   "version": "1.0.0",
   "type": "module",
-  "private": true,
-  "description": "OpenClaw - Kimi API powered AI assistant running in Cloudflare Sandbox",
+  "private": false,
+  "description": "🌙 KimiDock - Deploy your personal AI agent powered by Kimi (Moonshot AI) on Cloudflare Sandbox. Zero servers, zero maintenance, just intelligence.",
   "scripts": {
     "build": "vite build",
     "deploy": "npm run build && wrangler deploy",
@@ -36,7 +36,7 @@
     "vitest": "^4.0.18",
     "wrangler": "^4.50.0"
   },
-  "author": "",
+  "author": "@yksanjo (https://github.com/yksanjo)",
   "license": "MIT",
   "cloudflare": {
     "bindings": {
@@ -44,7 +44,7 @@
         "description": "Your DeepSeek API key from https://platform.deepseek.com"
       },
       "KIMI_API_KEY": {
-        "description": "Your Kimi API key from https://platform.moonshot.cn (OpenClaw default provider)"
+        "description": "Your Kimi/Moonshot AI API key from https://platform.moonshot.cn (required)"
       },
       "KIMI_BASE_URL": {
         "description": "Kimi API base URL (default: https://api.moonshot.cn/v1)"
